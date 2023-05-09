@@ -1,5 +1,6 @@
 var request = require("request");
-
+var Mixpanel = require("mixpanel");
+var mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN);
 // Function to send message to WhatsApp
 const sendMessage = async (message, senderID) => {
   try {
@@ -20,9 +21,13 @@ const sendMessage = async (message, senderID) => {
         console.log(`Error at sendMessage Request --> ${error}`);
       }
       console.log(body);
+      // MIXPANEL: SUCCESSFUL REPLy
+      mixpanel.track("successful reply");
     });
   } catch (error) {
     console.log(`Error at sendMessage --> ${error}`);
+    // MIXPANEL: UNSUCCESSFUL REPLy
+    mixpanel.track("unsuccessful reply");
   }
 };
 

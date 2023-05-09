@@ -1,6 +1,7 @@
 // Import Models
 const UsersWA = require("../Models/UsersWA.js");
-
+var Mixpanel = require("mixpanel");
+var mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN);
 // Import Functions
 const { SaveChatsWA } = require("../Functions/SaveChatsWADB.js");
 const { saveMemory } = require("../Functions/SaveMemoryWADB.js");
@@ -16,6 +17,11 @@ exports.receiveMessageWA = async (req, res) => {
   let msgType = req.body["data"]["type"];
   if (msgType != "chat") {
     sendMessage("Oops, Saam only understands text", userNumber);
+    // MIXPANEL: USER TRIED DIFFERENT FORMAT
+    mixpanel.track("different format", {
+      distinct_id: userNumber,
+      format: msgType,
+    });
     res.status(200).send({
       mesage: "Sent",
     });
@@ -28,6 +34,11 @@ exports.receiveMessageWA = async (req, res) => {
     const userWA = new UsersWA({ userNumber });
     await userWA.save();
     console.log(`New user created: ${userWA}`);
+    // MIXPANEL: USER ACQUISITION:
+    mixpanel.track("Signed Up", {
+      distinct_id: userNumber,
+    });
+
     // Save User's message to chatDB
     await SaveChatsWA(userWA._id, "User", message);
     // Save User's Message to MemoryDB
@@ -39,6 +50,10 @@ exports.receiveMessageWA = async (req, res) => {
     });
   }
   if (exisitingNumber) {
+    //MIXPANEL: USER ENGAGEMENT
+    mixpanel.track("user engagement", {
+      distinct_id: userNumber,
+    });
     console.log(`This user exists!!`);
     // Save User's message to chatDB
     await SaveChatsWA(exisitingNumber._id, "User", message);
