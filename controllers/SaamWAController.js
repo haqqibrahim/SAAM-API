@@ -51,7 +51,7 @@ exports.receiveMessageWA = async (req, res) => {
   }
   if (exisitingNumber) {
     //MIXPANEL: USER ENGAGEMENT
-    mixpanel.track("user engagement", {
+    mixpanel.track("use saam", {
       distinct_id: userNumber,
     });
     console.log(`This user exists!!`);
